@@ -1,137 +1,162 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STG Tour Manager | Professional</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>STG Tour Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #0b0f19; color: #e2e8f0; font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .tour-card { transition: all 0.3s ease; }
-        .stg-gradient-text { background: linear-gradient(90deg, #22c55e, #ef4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        body { 
+            background-color: #f2f2f7; 
+            color: #1c1c1e; 
+            font-family: 'Hind Siliguri', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .ios-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .admin-panel {
+            background: #ffffff;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .btn-ios {
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+        .btn-ios:active { transform: scale(0.96); opacity: 0.8; }
+        .stg-header {
+            background: linear-gradient(135deg, #059669 0%, #dc2626 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .line-clamp {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #d1d1d6; border-radius: 10px; }
     </style>
 </head>
-<body class="pb-10">
+<body class="pb-20">
 
-    <!-- Header -->
-    <header class="p-6 text-center border-b border-slate-800 mb-6 bg-slate-900/50">
-        <h1 class="text-3xl font-extrabold stg-gradient-text">SAVAR TRAVELLERS GROUP</h1>
-        <p class="text-gray-400 text-xs mt-1 tracking-widest uppercase">Tour Details Management System</p>
-        
-        <div class="mt-4 flex justify-center gap-2">
-            <button id="admin-login-btn" onclick="toggleAdmin()" class="text-xs bg-slate-800 px-4 py-2 rounded-full border border-slate-700 hover:bg-slate-700">
-                <i class="fas fa-lock-open mr-2"></i>Admin Login
-            </button>
-            <button id="admin-logout-btn" onclick="logout()" class="hidden text-xs bg-red-900/30 text-red-400 px-4 py-2 rounded-full border border-red-900/50">
-                <i class="fas fa-sign-out-alt mr-2"></i>Logout
-            </button>
+    <!-- Top Navigation -->
+    <nav class="sticky top-0 z-50 bg-[#f2f2f7]/80 backdrop-blur-md px-5 py-4 flex justify-between items-center border-b border-gray-200">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center text-white font-bold text-xs">STG</div>
+            <h1 class="text-xl font-bold tracking-tight text-gray-900">Tour Manager</h1>
         </div>
-    </header>
+        <button onclick="checkAdmin()" id="admin-trigger" class="text-gray-500 hover:text-green-600 transition">
+            <i class="fa-solid fa-circle-user text-2xl"></i>
+        </button>
+    </nav>
 
-    <main class="max-w-3xl mx-auto px-4">
+    <!-- Header Section -->
+    <div class="px-5 py-6">
+        <h2 class="text-3xl font-extrabold text-gray-900">Savar Travellers Group</h2>
+        <p class="text-gray-500 text-sm font-medium">সহজেই ট্যুর ডিটেইলস কপি করুন</p>
+    </div>
 
-        <!-- Admin Dashboard (Hidden by default) -->
-        <div id="admin-panel" class="hidden mb-10 space-y-4 animate-fadeIn">
-            <div class="glass p-6 rounded-2xl shadow-2xl">
-                <h2 class="text-xl font-bold text-green-400 mb-4 flex items-center">
-                    <i class="fas fa-plus-circle mr-2"></i> Add New Tour
-                </h2>
-                <input type="hidden" id="edit-index">
-                <input type="text" id="tour-name" placeholder="Tour Name (e.g. Sajek Valley)" 
-                    class="w-full p-4 mb-4 bg-slate-900 border border-slate-700 rounded-xl focus:ring-2 focus:ring-green-500 outline-none">
-                <textarea id="tour-details" rows="6" placeholder="Write full tour details here..." 
-                    class="w-full p-4 mb-4 bg-slate-900 border border-slate-700 rounded-xl focus:ring-2 focus:ring-green-500 outline-none"></textarea>
-                <button onclick="saveTour()" id="save-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl shadow-lg transition-all">
-                    Publish Tour Details
-                </button>
+    <main class="px-5 space-y-6">
+        
+        <!-- Admin Entry (Hidden) -->
+        <div id="admin-box" class="hidden animate-in fade-in duration-500">
+            <div class="admin-panel p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-lg text-green-700">অ্যাডমিন ড্যাশবোর্ড</h3>
+                    <button onclick="logout()" class="text-red-500 text-sm font-semibold">Logout</button>
+                </div>
+                <input type="hidden" id="edit-id">
+                <input type="text" id="t-name" placeholder="ট্যুর এর নাম" class="w-full p-4 mb-3 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-green-500">
+                <textarea id="t-desc" rows="6" placeholder="বিস্তারিত তথ্য বা বাংলা ক্যাপশন এখানে দিন..." class="w-full p-4 mb-4 bg-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-green-500"></textarea>
+                <button onclick="handleSave()" id="save-btn" class="w-full bg-green-600 text-white font-bold py-4 btn-ios shadow-lg shadow-green-200">সেভ করুন</button>
             </div>
         </div>
 
-        <!-- Member View / Tour List -->
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-xl font-bold">Active Tours</h2>
-            <span id="tour-count" class="bg-slate-800 px-3 py-1 rounded-md text-sm text-gray-400">0 Tours</span>
+        <!-- Tour Search & Stats -->
+        <div class="flex justify-between items-center px-1">
+            <p class="text-xs uppercase tracking-widest text-gray-400 font-bold" id="counter">0 টি ট্যুর লিস্টে আছে</p>
         </div>
 
-        <div id="tour-list" class="space-y-4">
-            <!-- List will be here -->
+        <!-- Tour Cards Container -->
+        <div id="display-area" class="space-y-4">
+            <!-- Cards will inject here -->
         </div>
 
     </main>
 
-    <!-- Success Toast -->
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-full shadow-2xl transition-all opacity-0 pointer-events-none">
-        ✅ Copied to Clipboard!
+    <!-- Copy Success Toast -->
+    <div id="copy-toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-gray-900/90 backdrop-blur text-white px-8 py-3 rounded-2xl shadow-2xl transition-all opacity-0 pointer-events-none z-[100]">
+        <span class="flex items-center gap-2 font-semibold text-sm">
+            <i class="fa-solid fa-check-circle text-green-400"></i> কপি করা হয়েছে!
+        </span>
     </div>
 
     <script>
-        // Settings
-        const ADMIN_PASSWORD = "stg123"; // CHANGE YOUR PASSWORD HERE
-        let isAdmin = false;
-        let tours = JSON.parse(localStorage.getItem('stg_tours_pro')) || [];
+        const PASS = "stg123"; // আপনার পাসওয়ার্ড
+        let isEditMode = false;
+        let tourData = JSON.parse(localStorage.getItem('stg_master_db')) || [];
 
-        // Logic
-        function toggleAdmin() {
-            const pass = prompt("Enter Admin Password:");
-            if (pass === ADMIN_PASSWORD) {
-                isAdmin = true;
-                document.getElementById('admin-panel').classList.remove('hidden');
-                document.getElementById('admin-login-btn').classList.add('hidden');
-                document.getElementById('admin-logout-btn').classList.remove('hidden');
-                renderTours();
-            } else {
-                alert("Wrong Password!");
+        function checkAdmin() {
+            const entry = prompt("অ্যাডমিন পিন দিন:");
+            if (entry === PASS) {
+                isEditMode = true;
+                document.getElementById('admin-box').classList.remove('hidden');
+                document.getElementById('admin-trigger').classList.add('text-green-600');
+                render();
+            } else if (entry !== null) {
+                alert("ভুল পাসওয়ার্ড!");
             }
         }
 
         function logout() {
-            isAdmin = false;
-            document.getElementById('admin-panel').classList.add('hidden');
-            document.getElementById('admin-login-btn').classList.remove('hidden');
-            document.getElementById('admin-logout-btn').classList.add('hidden');
-            renderTours();
+            isEditMode = false;
+            document.getElementById('admin-box').classList.add('hidden');
+            document.getElementById('admin-trigger').classList.remove('text-green-600');
+            render();
         }
 
-        function renderTours() {
-            const list = document.getElementById('tour-list');
-            document.getElementById('tour-count').innerText = `${tours.length} Tours`;
-            list.innerHTML = '';
-            
-            tours.forEach((tour, index) => {
-                list.innerHTML += `
-                    <div class="tour-card glass rounded-2xl overflow-hidden border border-slate-800">
+        function render() {
+            const area = document.getElementById('display-area');
+            document.getElementById('counter').innerText = `${tourData.length} টি ট্যুর লিস্টে আছে`;
+            area.innerHTML = '';
+
+            tourData.forEach((item, index) => {
+                area.innerHTML += `
+                    <div class="ios-card overflow-hidden">
                         <div class="p-5">
-                            <div class="flex justify-between items-start">
-                                <div class="cursor-pointer flex-1" onclick="toggleAccordion(${index})">
-                                    <h3 class="text-lg font-bold text-white flex items-center">
-                                        <i class="fas fa-map-marker-alt text-red-500 mr-2 text-sm"></i>
-                                        ${tour.name}
-                                    </h3>
-                                    <p id="preview-${index}" class="text-gray-400 text-sm mt-1 line-clamp-2">${tour.details}</p>
-                                </div>
-                                ${isAdmin ? `
-                                    <div class="flex gap-2 ml-4">
-                                        <button onclick="editTour(${index})" class="p-2 text-blue-400 hover:bg-blue-400/10 rounded-lg"><i class="fas fa-edit"></i></button>
-                                        <button onclick="deleteTour(${index})" class="p-2 text-red-400 hover:bg-red-400/10 rounded-lg"><i class="fas fa-trash"></i></button>
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="text-lg font-bold text-gray-900 leading-tight flex-1" onclick="toggleView(${index})">
+                                    ${item.name}
+                                </h4>
+                                ${isEditMode ? `
+                                    <div class="flex gap-3 ml-2">
+                                        <button onclick="initEdit(${index})" class="text-blue-500"><i class="fa-solid fa-pen-to-square"></i></button>
+                                        <button onclick="remove(${index})" class="text-red-400"><i class="fa-solid fa-trash"></i></button>
                                     </div>
                                 ` : ''}
                             </div>
                             
-                            <div id="full-details-${index}" class="hidden mt-4 pt-4 border-t border-slate-700/50">
-                                <pre class="whitespace-pre-wrap font-sans text-gray-300 text-sm leading-relaxed">${tour.details}</pre>
+                            <div id="content-${index}" class="text-gray-600 text-[15px] leading-relaxed mb-4 cursor-pointer" onclick="toggleView(${index})">
+                                <p class="line-clamp" id="p-text-${index}">${item.details}</p>
                             </div>
 
-                            <div class="mt-5 flex gap-2">
-                                <button onclick="copyTour('${encodeURIComponent(tour.details)}')" 
-                                    class="flex-1 bg-slate-800 hover:bg-green-600 text-white py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2">
-                                    <i class="fas fa-copy"></i> Copy Details
+                            <div class="flex gap-2">
+                                <button onclick="copyRaw('${index}')" class="flex-1 bg-green-600 text-white font-bold py-3 btn-ios flex items-center justify-center gap-2 shadow-md shadow-green-100">
+                                    <i class="fa-solid fa-copy"></i> কপি ডিটেইলস
                                 </button>
-                                <button onclick="toggleAccordion(${index})" id="btn-text-${index}"
-                                    class="px-4 bg-slate-700/50 hover:bg-slate-700 text-gray-300 rounded-xl text-xs">
-                                    More
+                                <button onclick="toggleView(${index})" id="view-btn-${index}" class="px-4 bg-gray-200 text-gray-700 font-bold py-3 btn-ios text-xs">
+                                    বিস্তারিত
                                 </button>
                             </div>
                         </div>
@@ -140,84 +165,91 @@
             });
         }
 
-        function toggleAccordion(index) {
-            const el = document.getElementById(`full-details-${index}`);
-            const preview = document.getElementById(`preview-${index}`);
-            const btn = document.getElementById(`btn-text-${index}`);
+        function toggleView(index) {
+            const p = document.getElementById(`p-text-${index}`);
+            const btn = document.getElementById(`view-btn-${index}`);
+            if (p.classList.contains('line-clamp')) {
+                p.classList.remove('line-clamp');
+                btn.innerText = "সংক্ষিপ্ত";
+            } else {
+                p.classList.add('line-clamp');
+                btn.innerText = "বিস্তারিত";
+            }
+        }
+
+        function handleSave() {
+            const name = document.getElementById('t-name').value;
+            const details = document.getElementById('t-desc').value;
+            const id = document.getElementById('edit-id').value;
+
+            if (!name || !details) return alert("সব ঘর পূরণ করুন!");
+
+            if (id === "") {
+                tourData.unshift({ name, details });
+            } else {
+                tourData[id] = { name, details };
+                document.getElementById('edit-id').value = "";
+                document.getElementById('save-btn').innerText = "সেভ করুন";
+            }
+
+            localStorage.setItem('stg_master_db', JSON.stringify(tourData));
+            document.getElementById('t-name').value = '';
+            document.getElementById('t-desc').value = '';
+            render();
+        }
+
+        function initEdit(idx) {
+            document.getElementById('t-name').value = tourData[idx].name;
+            document.getElementById('t-desc').value = tourData[idx].details;
+            document.getElementById('edit-id').value = idx;
+            document.getElementById('save-btn').innerText = "আপডেট করুন";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function remove(idx) {
+            if (confirm("এটি ডিলিট করতে চান?")) {
+                tourData.splice(idx, 1);
+                localStorage.setItem('stg_master_db', JSON.stringify(tourData));
+                render();
+            }
+        }
+
+        // 🟢 Advanced Copy Logic for Bangla & iOS
+        async function copyRaw(index) {
+            const textToCopy = tourData[index].details;
             
-            if (el.classList.contains('hidden')) {
-                el.classList.remove('hidden');
-                preview.classList.remove('line-clamp-2');
-                btn.innerText = "Less";
-            } else {
-                el.classList.add('hidden');
-                preview.classList.add('line-clamp-2');
-                btn.innerText = "More";
-            }
-        }
-
-        function saveTour() {
-            const name = document.getElementById('tour-name').value;
-            const details = document.getElementById('tour-details').value;
-            const editIndex = document.getElementById('edit-index').value;
-
-            if (!name || !details) return alert("Fill all fields!");
-
-            if (editIndex === "") {
-                tours.unshift({ name, details });
-            } else {
-                tours[editIndex] = { name, details };
-                document.getElementById('edit-index').value = "";
-                document.getElementById('save-btn').innerText = "Publish Tour Details";
-            }
-
-            localStorage.setItem('stg_tours_pro', JSON.stringify(tours));
-            document.getElementById('tour-name').value = '';
-            document.getElementById('tour-details').value = '';
-            renderTours();
-        }
-
-        function editTour(index) {
-            document.getElementById('tour-name').value = tours[index].name;
-            document.getElementById('tour-details').value = tours[index].details;
-            document.getElementById('edit-index').value = index;
-            document.getElementById('save-btn').innerText = "Update Tour";
-            window.scrollTo({ top: 150, behavior: 'smooth' });
-        }
-
-        function deleteTour(index) {
-            if (confirm("Delete this tour?")) {
-                tours.splice(index, 1);
-                localStorage.setItem('stg_tours_pro', JSON.stringify(tours));
-                renderTours();
-            }
-        }
-
-        // Improved Copy Function for Mobile
-        async function copyTour(encodedStr) {
-            const text = decodeURIComponent(encodedStr);
             try {
-                await navigator.clipboard.writeText(text);
-                showToast();
+                // Primary Method
+                await navigator.clipboard.writeText(textToCopy);
+                triggerToast();
             } catch (err) {
-                // Fallback for older browsers/HTTP
-                const textArea = document.createElement("textarea");
-                textArea.value = text;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textArea);
-                showToast();
+                // Secondary Fallback for Bangla/Legacy Mobile
+                const tempInput = document.createElement("textarea");
+                tempInput.value = textToCopy;
+                tempInput.style.position = "fixed";
+                tempInput.style.left = "-9999px";
+                tempInput.style.top = "0";
+                document.body.appendChild(tempInput);
+                tempInput.focus();
+                tempInput.select();
+                tempInput.setSelectionRange(0, 99999); // For mobile
+                document.execCommand("copy");
+                document.body.removeChild(tempInput);
+                triggerToast();
             }
         }
 
-        function showToast() {
-            const toast = document.getElementById('toast');
-            toast.style.opacity = '1';
-            setTimeout(() => toast.style.opacity = '0', 2000);
+        function triggerToast() {
+            const t = document.getElementById('copy-toast');
+            t.style.opacity = '1';
+            t.style.bottom = '40px';
+            setTimeout(() => {
+                t.style.opacity = '0';
+                t.style.bottom = '10px';
+            }, 2000);
         }
 
-        renderTours();
+        render();
     </script>
 </body>
 </html>
