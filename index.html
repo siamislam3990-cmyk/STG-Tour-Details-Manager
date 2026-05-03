@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STG Tour Details Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; }
+        .stg-logo { color: #22c55e; font-weight: bold; font-size: 2rem; text-shadow: 2px 2px #ef4444; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Header Section -->
+    <div class="max-w-2xl mx-auto text-center mb-8">
+        <h1 class="stg-logo mb-2">SAVAR <br> <span style="color:#ef4444; text-shadow: 2px 2px #22c55e;">Travellers Group</span></h1>
+        <p class="text-gray-400 text-sm">STG Tour Details Manager</p>
+    </div>
+
+    <div class="max-w-2xl mx-auto space-y-6">
+        
+        <!-- Input Section (Add/Edit) -->
+        <div class="glass-card p-6 shadow-xl">
+            <h2 class="text-lg font-semibold mb-4 text-green-400" id="form-title">নতুন ট্যুর যোগ করুন</h2>
+            <input type="hidden" id="edit-index">
+            <input type="text" id="tour-name" placeholder="ট্যুর এর নাম (যেমন: সাজেক ভ্যালি)" 
+                class="w-full p-3 mb-4 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-green-500">
+            <textarea id="tour-details" rows="5" placeholder="ট্যুর এর বিস্তারিত তথ্য এখানে লিখুন..." 
+                class="w-full p-3 mb-4 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:border-green-500"></textarea>
+            <button onclick="saveTour()" id="save-btn" 
+                class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition duration-200">
+                সেভ করুন
+            </button>
+        </div>
+
+        <hr class="border-slate-800">
+
+        <!-- Display Section (List) -->
+        <div id="tour-list" class="space-y-4">
+            <!-- Tours will appear here -->
+        </div>
+    </div>
+
+    <script>
+        let tours = JSON.parse(localStorage.getItem('stg_tours')) || [];
+
+        function renderTours() {
+            const list = document.getElementById('tour-list');
+            list.innerHTML = '';
+            
+            tours.forEach((tour, index) => {
+                list.innerHTML += `
+                    <div class="glass-card p-5 animate-fadeIn">
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="text-xl font-bold text-white">${index + 1}. ${tour.name}</h3>
+                            <div class="flex gap-2">
+                                <button onclick="editTour(${index})" class="text-blue-400 text-sm border border-blue-400 px-2 py-1 rounded hover:bg-blue-400 hover:text-white transition">Edit</button>
+                                <button onclick="deleteTour(${index})" class="text-red-400 text-sm border border-red-400 px-2 py-1 rounded hover:bg-red-400 hover:text-white transition">Delete</button>
+                            </div>
+                        </div>
+                        <pre class="bg-black/30 p-4 rounded-lg text-sm text-gray-300 whitespace-pre-wrap font-sans border border-white/5 mb-4">${tour.details}</pre>
+                        <button onclick="copyToClipboard('${encodeURIComponent(tour.details)}', this)" 
+                            class="w-full bg-slate-700 hover:bg-green-600 text-white py-2 rounded-md transition-all flex justify-center items-center gap-2 font-medium">
+                            <span>📋 এক ক্লিকে কপি করুন</span>
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        function saveTour() {
+            const name = document.getElementById('tour-name').value;
+            const details = document.getElementById('tour-details').value;
+            const editIndex = document.getElementById('edit-index').value;
+
+            if (!name || !details) return alert("দয়া করে নাম এবং ডিটেইলস দিন!");
+
+            if (editIndex === "") {
+                tours.push({ name, details });
+            } else {
+                tours[editIndex] = { name, details };
+                document.getElementById('edit-index').value = "";
+                document.getElementById('form-title').innerText = "নতুন ট্যুর যোগ করুন";
+                document.getElementById('save-btn').innerText = "সেভ করুন";
+            }
+
+            localStorage.setItem('stg_tours', JSON.stringify(tours));
+            clearInputs();
+            renderTours();
+        }
+
+        function editTour(index) {
+            document.getElementById('tour-name').value = tours[index].name;
+            document.getElementById('tour-details').value = tours[index].details;
+            document.getElementById('edit-index').value = index;
+            document.getElementById('form-title').innerText = "ট্যুর আপডেট করুন";
+            document.getElementById('save-btn').innerText = "আপডেট করুন";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function deleteTour(index) {
+            if (confirm("আপনি কি নিশ্চিত যে এটি ডিলিট করবেন?")) {
+                tours.splice(index, 1);
+                localStorage.setItem('stg_tours', JSON.stringify(tours));
+                renderTours();
+            }
+        }
+
+        function copyToClipboard(encodedStr, btn) {
+            const str = decodeURIComponent(encodedStr);
+            navigator.clipboard.writeText(str).then(() => {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = "✅ কপি হয়েছে!";
+                btn.classList.replace('bg-slate-700', 'bg-green-600');
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.replace('bg-green-600', 'bg-slate-700');
+                }, 2000);
+            });
+        }
+
+        function clearInputs() {
+            document.getElementById('tour-name').value = '';
+            document.getElementById('tour-details').value = '';
+        }
+
+        renderTours();
+    </script>
+</body>
+</html>
